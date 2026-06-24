@@ -61,25 +61,12 @@ body {
   gap: 10px;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.dot.on {
-  background: var(--good);
-}
-.dot.off {
-  background: var(--muted);
-}
-
-.sync-btn {
+.count-pill {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  border: none;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -196,6 +183,44 @@ button.link {
 }
 button.link.danger {
   color: var(--bad);
+}
+
+button.secondary {
+  background: var(--card-2);
+  color: var(--text);
+  border: 1px solid #2a3960;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.data-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.data-actions button {
+  flex: 1;
+  min-width: 140px;
+}
+
+.sep {
+  border: none;
+  border-top: 1px solid #22304f;
+  margin: 6px 0;
+}
+
+code {
+  background: var(--card-2);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+h3 {
+  margin: 4px 0;
+  font-size: 15px;
 }
 
 .history {

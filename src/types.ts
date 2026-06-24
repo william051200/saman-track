@@ -9,9 +9,7 @@ export interface ParkingRecord {
   fineTime: string;
   /** Record creation timestamp (ISO). */
   createdAt: string;
-  /** True when the record still needs to be pushed to Google Sheets. */
-  dirty?: boolean;
-  /** True when the record was deleted locally and the deletion must be synced. */
+  /** Soft-delete marker (excluded from totals and the .txt file). */
   deleted?: boolean;
 }
 

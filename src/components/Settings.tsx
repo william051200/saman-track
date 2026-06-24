@@ -1,93 +1,99 @@
 import { useState } from 'react';
-import { AppConfig } from '../lib/storage';
-import { signIn } from '../lib/google';
+import { ParkingRecord } from '../types';
+import { activeRecords } from '../lib/calc';
+import {
+  exportTxt,
+  importTxt,
+  linkFile,
+  linkedFileName,
+  supportsFileLink,
+} from '../lib/fileStore';
 
 interface Props {
-  config: AppConfig;
-  onChange: (config: AppConfig) => void;
-  connected: boolean;
+  records: ParkingRecord[];
+  onReplaceAll: (records: ParkingRecord[]) => void;
+  onStatus: (msg: string) => void;
 }
 
-export default function Settings({ config, onChange, connected }: Props) {
-  const [testing, setTesting] = useState(false);
-  const [msg, setMsg] = useState('');
+export default function Settings({ records, onReplaceAll, onStatus }: Props) {
+  const [linked, setLinked] = useState<string | null>(linkedFileName());
+  const canLink = supportsFileLink();
+  const active = activeRecords(records);
 
-  function update<K extends keyof AppConfig>(key: K, value: AppConfig[K]) {
-    onChange({ ...config, [key]: value });
+  async function handleImport() {
+    try {
+      const recs = await importTxt();
+      onReplaceAll(recs);
+    } catch (e) {
+      onStatus(`Import failed: ${(e as Error).message}`);
+    }
   }
 
-  async function testSignIn() {
-    setTesting(true);
-    setMsg('');
+  async function handleLink(create: boolean) {
     try {
-      await signIn(config.googleClientId);
-      setMsg('✅ Signed in successfully.');
+      const recs = await linkFile(create);
+      setLinked(linkedFileName());
+      if (create) {
+        onStatus(`Linked “${linkedFileName()}”. Changes now auto-save to it.`);
+      } else if (recs) {
+        onReplaceAll(recs);
+        onStatus(`Linked “${linkedFileName()}”. Loaded ${recs.length} record(s).`);
+      }
     } catch (e) {
-      setMsg(`❌ ${(e as Error).message}`);
-    } finally {
-      setTesting(false);
+      const msg = (e as Error).message || '';
+      if (!/abort/i.test(msg)) onStatus(`Link failed: ${msg}`);
     }
   }
 
   return (
     <div className="card form">
-      <h2>Google Sheets</h2>
+      <h2>Data (local .txt file)</h2>
       <p className="muted">
-        Status:{' '}
-        {connected ? (
-          <strong className="ok">Connected</strong>
-        ) : (
-          <strong className="warn">Not connected</strong>
-        )}
+        Records are stored on this device. The file is plain text, one record per line,
+        fields separated by <code>|</code>.
       </p>
 
-      <label>
-        Google OAuth Client ID
-        <input
-          type="text"
-          placeholder="xxxxxx.apps.googleusercontent.com"
-          value={config.googleClientId}
-          onChange={(e) => update('googleClientId', e.target.value.trim())}
-        />
-      </label>
+      <div className="data-actions">
+        <button className="primary" onClick={() => exportTxt(active)}>
+          ⬇️ Export .txt
+        </button>
+        <button className="secondary" onClick={handleImport}>
+          ⬆️ Import .txt
+        </button>
+      </div>
 
-      <label>
-        Spreadsheet ID
-        <input
-          type="text"
-          placeholder="from the sheet URL: /d/<THIS>/edit"
-          value={config.spreadsheetId}
-          onChange={(e) => update('spreadsheetId', e.target.value.trim())}
-        />
-      </label>
+      <hr className="sep" />
 
-      <label>
-        Sheet/tab name
-        <input
-          type="text"
-          value={config.sheetName}
-          onChange={(e) => update('sheetName', e.target.value.trim() || 'Records')}
-        />
-      </label>
+      {canLink ? (
+        <>
+          <h3>Linked file (auto-save)</h3>
+          <p className="muted">
+            {linked ? (
+              <>
+                Linked to <strong>{linked}</strong> — every change saves automatically.
+              </>
+            ) : (
+              'Link a .txt file once and the app will auto-save to it.'
+            )}
+          </p>
+          <div className="data-actions">
+            <button className="secondary" onClick={() => handleLink(false)}>
+              🔗 Link existing file
+            </button>
+            <button className="secondary" onClick={() => handleLink(true)}>
+              ✨ Create new file
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="muted">
+          This browser can’t auto-save to a file (common on iOS/Android). Use{' '}
+          <strong>Export</strong> to save a backup and <strong>Import</strong> to restore.
+        </p>
+      )}
 
-      <button className="primary" onClick={testSignIn} disabled={testing}>
-        {testing ? 'Connecting…' : 'Test Google sign-in'}
-      </button>
-      {msg && <p className="muted">{msg}</p>}
-
-      <details className="help">
-        <summary>How to set up (one time)</summary>
-        <ol>
-          <li>Create a Google Sheet; copy its ID from the URL.</li>
-          <li>Add a tab named exactly as above (default “Records”).</li>
-          <li>
-            In Google Cloud Console: enable the <em>Google Sheets API</em>, create an
-            OAuth client ID (type: Web), and add this app’s URL to “Authorized
-            JavaScript origins”.
-          </li>
-          <li>Paste the Client ID and Spreadsheet ID here, then Sync.</li>
-        </ol>
-      </details>
+      <hr className="sep" />
+      <p className="muted">{active.length} record(s) currently stored.</p>
     </div>
   );
 }

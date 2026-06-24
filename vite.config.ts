@@ -2,11 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Base path: '/saman-track/' for GitHub Pages project site, '/' for local dev.
-const base = process.env.DEPLOY_TARGET === 'gh-pages' ? '/saman-track/' : '/';
-
 export default defineConfig({
-  base,
   plugins: [
     react(),
     VitePWA({
@@ -28,7 +24,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-        navigateFallbackDenylist: [/^https:\/\/(www\.)?googleapis\.com/],
       },
     }),
   ],
