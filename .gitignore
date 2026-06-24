@@ -14,3 +14,8 @@ Thumbs.db
 
 # PWA generated files
 dev-dist
+
+# tsc -b build artifacts
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
