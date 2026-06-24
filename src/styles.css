@@ -133,6 +133,44 @@ body {
   font-size: 14px;
 }
 
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 10px 0;
+}
+.scenario {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--card-2);
+}
+.scenario.best {
+  outline: 1px solid var(--accent-2);
+}
+.scenario-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.scenario-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+.muted.good {
+  color: var(--good);
+}
+.muted.bad {
+  color: var(--bad);
+}
+@media (max-width: 480px) {
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 .form {
   display: flex;
   flex-direction: column;

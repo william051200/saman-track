@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ParkingRecord } from './types';
+import { ParkingRecord, Settings as AppSettings } from './types';
 import { loadRecords, saveRecords } from './lib/storage';
+import { loadSettings, saveSettings } from './lib/settings';
 import { hasLinkedFile, writeLinkedFile } from './lib/fileStore';
 import { activeRecords } from './lib/calc';
 import Dashboard from './components/Dashboard';
@@ -12,6 +13,7 @@ type Tab = 'dashboard' | 'add' | 'history' | 'settings';
 
 export default function App() {
   const [records, setRecords] = useState<ParkingRecord[]>(() => loadRecords());
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [tab, setTab] = useState<Tab>('dashboard');
   const [status, setStatus] = useState<string>('');
 
@@ -24,6 +26,10 @@ export default function App() {
       );
     }
   }, [records]);
+
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
 
   const dayCount = useMemo(() => activeRecords(records).length, [records]);
 
@@ -55,7 +61,7 @@ export default function App() {
       )}
 
       <main className="content">
-        {tab === 'dashboard' && <Dashboard records={records} />}
+        {tab === 'dashboard' && <Dashboard records={records} settings={settings} />}
         {tab === 'add' && (
           <AddRecord
             onSave={(rec) => {
@@ -71,6 +77,8 @@ export default function App() {
         {tab === 'settings' && (
           <Settings
             records={records}
+            settings={settings}
+            onSettingsChange={setSettings}
             onReplaceAll={(recs) => {
               setRecords(recs);
               setStatus(`Loaded ${recs.length} record${recs.length === 1 ? '' : 's'}.`);

@@ -17,6 +17,24 @@ export interface ParkingRecord {
 export const PARKING_FEE = 9; // RM saved per parked day (fee avoided)
 export const FINE = 10; // RM paid per fine
 
+/** Default hourly parking rate (RM/hour). */
+export const HOURLY_RATE_DEFAULT = 1.2;
+/** Default peak-window length, in whole hours, the user would pay to cover. */
+export const PEAK_WINDOW_HOURS_DEFAULT = 1;
+
+/** User-configurable settings (currency: MYR / RM). */
+export interface Settings {
+  /** Parking cost per hour, in RM. */
+  hourlyRate: number;
+  /** Length of the peak enforcement window to pay for, in whole hours. */
+  peakWindowHours: number;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  hourlyRate: HOURLY_RATE_DEFAULT,
+  peakWindowHours: PEAK_WINDOW_HOURS_DEFAULT,
+};
+
 export interface Totals {
   /** Number of recorded parking days. */
   days: number;

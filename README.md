@@ -15,8 +15,12 @@ stored **locally** in a plain `.txt` file — no cloud, no account.
   2. **Total saved (before fines)** = `RM9 × days`
   3. **Total fined** = `RM10 × fines`
 - **Fine-time analysis**: hourly histogram + peak window + average fine time.
+- **Peak-window savings**: estimates how much you save by paying for parking
+  (**RM1.2/hr** by default) only during the busiest enforcement window, comparing it
+  side by side against never paying and against paying the full enforcement span.
 - **History**: list, edit, delete records.
 - **Local `.txt` storage**, offline-first.
+- **Configurable** parking rate and peak-window length (in the Data/Settings tab).
 - **Installable** on iOS, Android, and desktop.
 
 ## Tech stack

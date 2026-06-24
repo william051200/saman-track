@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ParkingRecord } from '../types';
+import { ParkingRecord, Settings as AppSettings } from '../types';
 import { activeRecords } from '../lib/calc';
 import {
   exportTxt,
@@ -11,11 +11,19 @@ import {
 
 interface Props {
   records: ParkingRecord[];
+  settings: AppSettings;
+  onSettingsChange: (settings: AppSettings) => void;
   onReplaceAll: (records: ParkingRecord[]) => void;
   onStatus: (msg: string) => void;
 }
 
-export default function Settings({ records, onReplaceAll, onStatus }: Props) {
+export default function Settings({
+  records,
+  settings,
+  onSettingsChange,
+  onReplaceAll,
+  onStatus,
+}: Props) {
   const [linked, setLinked] = useState<string | null>(linkedFileName());
   const canLink = supportsFileLink();
   const active = activeRecords(records);
@@ -47,6 +55,46 @@ export default function Settings({ records, onReplaceAll, onStatus }: Props) {
 
   return (
     <div className="card form">
+      <h2>Parking-cost settings</h2>
+      <p className="muted">
+        Used by the dashboard to estimate how much you save by paying only during the peak
+        enforcement window.
+      </p>
+
+      <label>
+        Parking rate (RM / hour)
+        <input
+          type="number"
+          min="0"
+          step="0.1"
+          value={settings.hourlyRate}
+          onChange={(e) =>
+            onSettingsChange({
+              ...settings,
+              hourlyRate: Math.max(0, Number(e.target.value) || 0),
+            })
+          }
+        />
+      </label>
+
+      <label>
+        Peak window to pay for (hours)
+        <input
+          type="number"
+          min="1"
+          step="1"
+          value={settings.peakWindowHours}
+          onChange={(e) =>
+            onSettingsChange({
+              ...settings,
+              peakWindowHours: Math.max(1, Math.round(Number(e.target.value) || 1)),
+            })
+          }
+        />
+      </label>
+
+      <hr className="sep" />
+
       <h2>Data (local .txt file)</h2>
       <p className="muted">
         Records are stored on this device. The file is plain text, one record per line,
