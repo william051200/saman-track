@@ -9,22 +9,22 @@ export interface PeakWindowSavings {
   days: number;
   /** Total fines. */
   fines: number;
-  /** Peak-window length used, in hours (clamped to the enforcement span). */
-  windowHours: number;
-  /** Peak window label, e.g. "08:00-10:00", or null. */
+  /** Pay-window length, in 30-minute blocks. */
+  windowBlocks: number;
+  /** Pay window label, e.g. "08:00-09:30", or null. */
   windowLabel: string | null;
-  /** Fines that fall inside the peak window. */
+  /** Fines that fall inside the pay window. */
   finesInWindow: number;
-  /** Fines that fall outside the peak window (still risk a fine). */
+  /** Fines that fall outside the pay window (still risk a fine). */
   finesOutWindow: number;
-  /** Full enforcement span, in hours (earliest..latest observed fine hour). */
-  spanHours: number;
+  /** Full enforcement span, in 30-minute blocks (earliest..latest observed fine hour). */
+  spanBlocks: number;
   /** Span label, e.g. "08:00-17:00", or null. */
   spanLabel: string | null;
 
   /** Scenario cost: never pay, get fined sometimes. */
   costNeverPay: number;
-  /** Scenario cost: pay the peak window every day, still fined outside it. */
+  /** Scenario cost: pay the pay window every day, still fined outside it. */
   costPeakWindow: number;
   /** Scenario cost: pay the full enforcement span every day (never fined). */
   costFullCoverage: number;
@@ -39,14 +39,23 @@ function hourLabel(hour: number): string {
   return `${String(hour % 24).padStart(2, '0')}:00`;
 }
 
+/** Parse "HH:mm" into minutes since midnight, or null when invalid. */
+function toMinutes(time: string): number | null {
+  const [h, m] = time.split(':').map((x) => parseInt(x, 10));
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null;
+  return h * 60 + m;
+}
+
 /**
  * Compute the side-by-side cost of three parking strategies and how much more
- * the "pay only during the peak window" strategy saves.
+ * the "pay only during the chosen window" strategy saves.
+ *
+ * All parking costs are billed in 30-minute blocks at `ratePer30Min`.
  *
  * Model (per tracked period):
  *   - never pay:        fines x RM10
- *   - peak window:      days x windowHours x rate + finesOutWindow x RM10
- *   - full coverage:    days x spanHours x rate          (never fined)
+ *   - pay window:       days x windowBlocks x ratePer30Min + finesOutWindow x RM10
+ *   - full coverage:    days x spanBlocks x ratePer30Min          (never fined)
  */
 export function peakWindowSavings(
   records: ParkingRecord[],
@@ -54,7 +63,7 @@ export function peakWindowSavings(
 ): PeakWindowSavings {
   const active = activeRecords(records);
   const days = active.length;
-  const rate = settings.hourlyRate;
+  const rate = settings.ratePer30Min;
 
   const hist = fineTimeHistogram(records);
   const fines = hist.reduce((sum, b) => sum + b.count, 0);
@@ -63,11 +72,11 @@ export function peakWindowSavings(
     hasData: false,
     days,
     fines: 0,
-    windowHours: 0,
+    windowBlocks: 0,
     windowLabel: null,
     finesInWindow: 0,
     finesOutWindow: 0,
-    spanHours: 0,
+    spanBlocks: 0,
     spanLabel: null,
     costNeverPay: 0,
     costPeakWindow: 0,
@@ -88,39 +97,41 @@ export function peakWindowSavings(
     }
   }
   const spanHours = lastHour - firstHour + 1;
+  const spanBlocks = spanHours * 2;
   const spanLabel = `${hourLabel(firstHour)}-${hourLabel(lastHour + 1)}`;
 
-  // Clamp the requested window length to [1, spanHours].
-  const windowHours = Math.max(1, Math.min(Math.round(settings.peakWindowHours), spanHours));
+  // User-specified pay window [payStart, payEnd), counted in 30-minute blocks.
+  const startMin = toMinutes(settings.payStart);
+  const endMin = toMinutes(settings.payEnd);
+  const validWindow = startMin !== null && endMin !== null && endMin > startMin;
+  const windowMinutes = validWindow ? endMin! - startMin! : 0;
+  const windowBlocks = Math.ceil(windowMinutes / 30);
+  const windowLabel = validWindow ? `${settings.payStart}-${settings.payEnd}` : null;
 
-  // Find the W-consecutive-hour window capturing the most fines.
-  let bestStart = firstHour;
-  let bestCount = -1;
-  for (let start = firstHour; start + windowHours - 1 <= lastHour; start++) {
-    let count = 0;
-    for (let h = start; h < start + windowHours; h++) count += hist[h].count;
-    if (count > bestCount) {
-      bestCount = count;
-      bestStart = start;
+  // Count fines whose actual time falls within the chosen window.
+  let finesInWindow = 0;
+  if (validWindow) {
+    for (const r of active) {
+      if (!r.fined || !r.fineTime) continue;
+      const t = toMinutes(r.fineTime);
+      if (t !== null && t >= startMin! && t < endMin!) finesInWindow++;
     }
   }
-  const finesInWindow = bestCount;
   const finesOutWindow = fines - finesInWindow;
-  const windowLabel = `${hourLabel(bestStart)}-${hourLabel(bestStart + windowHours)}`;
 
   const costNeverPay = fines * FINE;
-  const costPeakWindow = days * windowHours * rate + finesOutWindow * FINE;
-  const costFullCoverage = days * spanHours * rate;
+  const costPeakWindow = days * windowBlocks * rate + finesOutWindow * FINE;
+  const costFullCoverage = days * spanBlocks * rate;
 
   return {
     hasData: true,
     days,
     fines,
-    windowHours,
+    windowBlocks,
     windowLabel,
     finesInWindow,
     finesOutWindow,
-    spanHours,
+    spanBlocks,
     spanLabel,
     costNeverPay,
     costPeakWindow,

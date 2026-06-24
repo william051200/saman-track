@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ParkingRecord, Settings as AppSettings } from '../types';
 import { activeRecords } from '../lib/calc';
+import { peakFineHour } from '../lib/timeAnalysis';
 import {
   exportTxt,
   importTxt,
@@ -27,6 +28,17 @@ export default function Settings({
   const [linked, setLinked] = useState<string | null>(linkedFileName());
   const canLink = supportsFileLink();
   const active = activeRecords(records);
+  const peakHour = peakFineHour(records);
+
+  function usePeakHour() {
+    if (peakHour === null) return;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    onSettingsChange({
+      ...settings,
+      payStart: `${pad(peakHour)}:00`,
+      payEnd: `${pad((peakHour + 1) % 24)}:00`,
+    });
+  }
 
   async function handleImport() {
     try {
@@ -62,36 +74,55 @@ export default function Settings({
       </p>
 
       <label>
-        Parking rate (RM / hour)
+        Parking rate (RM / 30 min)
         <input
           type="number"
           min="0"
           step="0.1"
-          value={settings.hourlyRate}
+          value={settings.ratePer30Min}
           onChange={(e) =>
             onSettingsChange({
               ...settings,
-              hourlyRate: Math.max(0, Number(e.target.value) || 0),
+              ratePer30Min: Math.max(0, Number(e.target.value) || 0),
             })
           }
         />
       </label>
 
       <label>
-        Peak window to pay for (hours)
+        Pay start time
         <input
-          type="number"
-          min="1"
-          step="1"
-          value={settings.peakWindowHours}
-          onChange={(e) =>
-            onSettingsChange({
-              ...settings,
-              peakWindowHours: Math.max(1, Math.round(Number(e.target.value) || 1)),
-            })
-          }
+          type="time"
+          step={1800}
+          value={settings.payStart}
+          onChange={(e) => onSettingsChange({ ...settings, payStart: e.target.value })}
         />
       </label>
+
+      <label>
+        Pay end time
+        <input
+          type="time"
+          step={1800}
+          value={settings.payEnd}
+          onChange={(e) => onSettingsChange({ ...settings, payEnd: e.target.value })}
+        />
+      </label>
+
+      <button
+        type="button"
+        className="secondary"
+        onClick={usePeakHour}
+        disabled={peakHour === null}
+      >
+        🎯 Use peak hour
+        {peakHour !== null
+          ? ` (${String(peakHour).padStart(2, '0')}:00–${String((peakHour + 1) % 24).padStart(2, '0')}:00)`
+          : ''}
+      </button>
+      {peakHour === null && (
+        <p className="muted">Log a few fines with times to enable peak-hour auto-select.</p>
+      )}
 
       <hr className="sep" />
 

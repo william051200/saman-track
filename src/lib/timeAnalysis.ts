@@ -65,3 +65,10 @@ export function fineTimeSummary(records: ParkingRecord[]): FineTimeSummary {
 
   return { average: minutesToLabel(avg), peakWindow, count: times.length };
 }
+
+/** Busiest fine hour (0..23) with the most logged fines, or null when no data. */
+export function peakFineHour(records: ParkingRecord[]): number | null {
+  const hist = fineTimeHistogram(records);
+  const peak = hist.reduce((best, b) => (b.count > best.count ? b : best), hist[0]);
+  return peak.count > 0 ? peak.hour : null;
+}

@@ -17,22 +17,27 @@ export interface ParkingRecord {
 export const PARKING_FEE = 9; // RM saved per parked day (fee avoided)
 export const FINE = 10; // RM paid per fine
 
-/** Default hourly parking rate (RM/hour). */
-export const HOURLY_RATE_DEFAULT = 1.2;
-/** Default peak-window length, in whole hours, the user would pay to cover. */
-export const PEAK_WINDOW_HOURS_DEFAULT = 1;
+/** Default parking rate per 30 minutes (RM). */
+export const RATE_PER_30MIN_DEFAULT = 0.6;
+/** Default pay-window start time (HH:mm). */
+export const PAY_START_DEFAULT = '08:00';
+/** Default pay-window end time (HH:mm). */
+export const PAY_END_DEFAULT = '09:00';
 
 /** User-configurable settings (currency: MYR / RM). */
 export interface Settings {
-  /** Parking cost per hour, in RM. */
-  hourlyRate: number;
-  /** Length of the peak enforcement window to pay for, in whole hours. */
-  peakWindowHours: number;
+  /** Parking cost per 30 minutes, in RM. */
+  ratePer30Min: number;
+  /** Pay-window start time, "HH:mm" (24h, 30-min steps). */
+  payStart: string;
+  /** Pay-window end time, "HH:mm" (24h, 30-min steps). */
+  payEnd: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  hourlyRate: HOURLY_RATE_DEFAULT,
-  peakWindowHours: PEAK_WINDOW_HOURS_DEFAULT,
+  ratePer30Min: RATE_PER_30MIN_DEFAULT,
+  payStart: PAY_START_DEFAULT,
+  payEnd: PAY_END_DEFAULT,
 };
 
 export interface Totals {

@@ -54,9 +54,9 @@ export default function Dashboard({
         {pw.hasData ? (
           <>
             <p className="muted">
-              Pay <strong>{formatRM(settings.hourlyRate)}/hr</strong> to cover the{' '}
-              <strong>{pw.windowHours}h</strong> peak window{' '}
-              <strong>{pw.windowLabel}</strong> (catches {pw.finesInWindow} of {pw.fines}{' '}
+              Pay <strong>{formatRM(settings.ratePer30Min)}/30min</strong> to cover the{' '}
+              <strong>{pw.windowLabel}</strong> window{' '}
+              (catches {pw.finesInWindow} of {pw.fines}{' '}
               fine{pw.fines === 1 ? '' : 's'}; {pw.finesOutWindow} still slip through).
             </p>
 
@@ -70,14 +70,14 @@ export default function Dashboard({
                 <span className="scenario-label">Pay peak window</span>
                 <span className="scenario-value">{formatRM(pw.costPeakWindow)}</span>
                 <span className="stat-sub">
-                  {pw.days}×{pw.windowHours}h parking + {pw.finesOutWindow} fines
+                  {pw.days}×{pw.windowBlocks}×30min parking + {pw.finesOutWindow} fines
                 </span>
               </div>
               <div className="scenario">
                 <span className="scenario-label">Pay full span</span>
                 <span className="scenario-value">{formatRM(pw.costFullCoverage)}</span>
                 <span className="stat-sub">
-                  {pw.days}×{pw.spanHours}h ({pw.spanLabel}), no fines
+                  {pw.days}×{pw.spanBlocks}×30min ({pw.spanLabel}), no fines
                 </span>
               </div>
             </div>
