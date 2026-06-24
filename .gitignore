@@ -19,3 +19,4 @@ dev-dist
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+.vercel
