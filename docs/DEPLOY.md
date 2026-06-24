@@ -4,27 +4,54 @@ This app is a static Vite SPA. The repo is already Vercel-ready: `vercel.json` s
 Vite framework preset and SPA rewrites, so no extra configuration is needed. Storage is
 local, so there are **no environment variables** to set.
 
-## Option A — Git integration (recommended)
+The project is already deployed at **https://saman-track.vercel.app**.
 
-1. Go to [vercel.com](https://vercel.com) and sign in with GitHub.
-2. **Add New… → Project**, then **Import** `william051200/saman-track`
-   (authorize Vercel to access the repo if prompted).
-3. Vercel auto-detects the settings:
-   - Framework preset: **Vite**
-   - Build command: `npm run build`
-   - Output directory: `dist`
-   Leave the defaults and click **Deploy**.
-4. You'll get a `https://<project>.vercel.app` URL. Every push to `main`
-   redeploys automatically.
+## Manual deploy with the Vercel CLI
 
-## Option B — Vercel CLI
+The project is already linked locally (a `.vercel/` folder, git-ignored), so from the
+repo root you just run:
 
 ```bash
-npm i -g vercel
-vercel login   # one-time browser sign-in
-vercel         # first run links/creates the project
-vercel --prod  # production deploy
+vercel --prod          # build on Vercel and promote to production
+vercel                 # deploy a preview build (non-production URL)
 ```
+
+`vercel login` (one-time, opens a browser) authenticates the CLI. In a non-interactive
+environment, use an access token instead — create one at
+<https://vercel.com/account/tokens>, then:
+
+```bash
+# pass it per command…
+vercel --prod --token YOUR_TOKEN --yes
+
+# …or set it once for the shell session
+export VERCEL_TOKEN=YOUR_TOKEN   # PowerShell: $env:VERCEL_TOKEN="YOUR_TOKEN"
+vercel --prod --yes
+```
+
+> Treat the token like a password. Don't commit it; rotate/revoke unused tokens.
+
+Useful extras:
+
+```bash
+vercel ls              # list deployments
+vercel inspect <url>   # show details/logs for a deployment
+vercel rollback <url>  # promote a previous deployment back to production
+```
+
+## Connect Git for automatic deploys (recommended)
+
+A CLI deploy is a one-off. To redeploy automatically on every push:
+
+1. Open the project on [vercel.com](https://vercel.com) → **Settings → Git**.
+2. **Connect** the GitHub repo `william051200/saman-track`
+   (authorize Vercel to access it if prompted).
+3. After connecting, every push to `main` triggers a production deploy, and pull
+   requests get preview deployments.
+
+Alternatively, create the project fresh from Git: **Add New… → Project → Import**
+`william051200/saman-track`. Vercel auto-detects framework **Vite**
+(build `npm run build`, output `dist`); click **Deploy**.
 
 ## Notes
 
