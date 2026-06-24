@@ -1,1 +1,0 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/addrecord.tsx","./src/components/dashboard.tsx","./src/components/finetimechart.tsx","./src/components/history.tsx","./src/components/settings.tsx","./src/lib/calc.ts","./src/lib/google.ts","./src/lib/storage.ts","./src/lib/sync.ts","./src/lib/timeanalysis.ts"],"version":"5.9.3"}
