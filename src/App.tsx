@@ -8,8 +8,9 @@ import Dashboard from './components/Dashboard';
 import AddRecord from './components/AddRecord';
 import History from './components/History';
 import Settings from './components/Settings';
+import About from './components/About';
 
-type Tab = 'dashboard' | 'add' | 'history' | 'settings';
+type Tab = 'dashboard' | 'add' | 'history' | 'settings' | 'about';
 
 export default function App() {
   const [records, setRecords] = useState<ParkingRecord[]>(() => loadRecords());
@@ -86,6 +87,7 @@ export default function App() {
             onStatus={setStatus}
           />
         )}
+        {tab === 'about' && <About />}
       </main>
 
       <nav className="tabbar">
@@ -100,6 +102,9 @@ export default function App() {
         </button>
         <button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}>
           ⚙️<span>Data</span>
+        </button>
+        <button className={tab === 'about' ? 'active' : ''} onClick={() => setTab('about')}>
+          ℹ️<span>About</span>
         </button>
       </nav>
     </div>

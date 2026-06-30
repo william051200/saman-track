@@ -327,6 +327,17 @@ h3 {
   padding-left: 18px;
 }
 
+.about-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.about-list li {
+  margin-bottom: 8px;
+}
+.about-list li:last-child {
+  margin-bottom: 0;
+}
+
 .tabbar {
   position: fixed;
   bottom: 0;
