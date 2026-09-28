@@ -25,8 +25,8 @@ export default function About() {
         <p className="muted">
           Open <strong>Add</strong> to log a day (and the fine time if you were
           fined). Your numbers update on <strong>Stats</strong>, past entries
-          live in <strong>History</strong>, and rates and storage are managed in{' '}
-          <strong>Data</strong>.
+          live in <strong>History</strong>, and rates and storage are managed from{' '}
+          <strong>Data</strong> in the top-right menu.
         </p>
       </div>
     </div>

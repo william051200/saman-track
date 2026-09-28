@@ -1,7 +1,11 @@
 import { ParkingRecord, Settings } from '../types';
 import { computeTotals, formatRM } from '../lib/calc';
 import { fineTimeSummary } from '../lib/timeAnalysis';
-import { peakWindowSavings } from '../lib/peakWindowSavings';
+import {
+  CostStrategyId,
+  lowestCostStrategies,
+  peakWindowSavings,
+} from '../lib/peakWindowSavings';
 import FineTimeChart from './FineTimeChart';
 
 export default function Dashboard({
@@ -14,6 +18,35 @@ export default function Dashboard({
   const t = computeTotals(records);
   const summary = fineTimeSummary(records);
   const pw = peakWindowSavings(records, settings);
+  const scenarios: Array<{
+    id: CostStrategyId;
+    label: string;
+    cost: number;
+    detail: string;
+  }> = [
+    {
+      id: 'neverPay',
+      label: 'Never pay (now)',
+      cost: pw.costNeverPay,
+      detail: `RM10 × ${pw.fines} fines`,
+    },
+    {
+      id: 'peakWindow',
+      label: 'Pay peak window',
+      cost: pw.costPeakWindow,
+      detail: `${pw.days}×${pw.windowBlocks}×30min parking + ${pw.finesOutWindow} fines`,
+    },
+    {
+      id: 'fullCoverage',
+      label: 'Pay full span',
+      cost: pw.costFullCoverage,
+      detail: `${pw.days}×${pw.spanBlocks}×30min (${pw.spanLabel}), no fines`,
+    },
+  ];
+  const lowestIds = pw.hasData ? lowestCostStrategies(pw) : [];
+  const lowestLabels = scenarios
+    .filter((scenario) => lowestIds.includes(scenario.id))
+    .map((scenario) => scenario.label);
 
   return (
     <div className="dashboard">
@@ -61,27 +94,27 @@ export default function Dashboard({
             </p>
 
             <div className="scenario-grid">
-              <div className="scenario">
-                <span className="scenario-label">Never pay (now)</span>
-                <span className="scenario-value">{formatRM(pw.costNeverPay)}</span>
-                <span className="stat-sub">RM10 × {pw.fines} fines</span>
-              </div>
-              <div className="scenario best">
-                <span className="scenario-label">Pay peak window</span>
-                <span className="scenario-value">{formatRM(pw.costPeakWindow)}</span>
-                <span className="stat-sub">
-                  {pw.days}×{pw.windowBlocks}×30min parking + {pw.finesOutWindow} fines
-                </span>
-              </div>
-              <div className="scenario">
-                <span className="scenario-label">Pay full span</span>
-                <span className="scenario-value">{formatRM(pw.costFullCoverage)}</span>
-                <span className="stat-sub">
-                  {pw.days}×{pw.spanBlocks}×30min ({pw.spanLabel}), no fines
-                </span>
-              </div>
+              {scenarios.map((scenario) => {
+                const isLowest = lowestIds.includes(scenario.id);
+                return (
+                  <div
+                    key={scenario.id}
+                    className={`scenario${isLowest ? ' best' : ''}`}
+                    data-strategy={scenario.id}
+                  >
+                    <span className="scenario-label">{scenario.label}</span>
+                    {isLowest && <span className="lowest-badge">Lowest cost</span>}
+                    <span className="scenario-value">{formatRM(scenario.cost)}</span>
+                    <span className="stat-sub">{scenario.detail}</span>
+                  </div>
+                );
+              })}
             </div>
 
+            <p className="lowest-summary">
+              Lowest-cost {lowestLabels.length === 1 ? 'option' : 'options'}:{' '}
+              <strong>{lowestLabels.join(' and ')}</strong>
+            </p>
             <p className={`muted ${pw.savingsVsNeverPay >= 0 ? 'good' : 'bad'}`}>
               vs never paying, the peak-window plan{' '}
               <strong>
@@ -102,7 +135,8 @@ export default function Dashboard({
         ) : (
           <p className="muted">
             Log a few fines (with times) and this will show how much the peak-window plan
-            saves. Tune the rate and window length in <strong>Data</strong> settings.
+            saves. Tune the rate and window length under <strong>Data</strong> in the
+            top-right menu.
           </p>
         )}
       </div>

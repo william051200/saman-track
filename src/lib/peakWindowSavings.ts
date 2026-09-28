@@ -35,6 +35,20 @@ export interface PeakWindowSavings {
   savingsVsFullCoverage: number;
 }
 
+export type CostStrategyId = 'neverPay' | 'peakWindow' | 'fullCoverage';
+
+export function lowestCostStrategies(
+  result: Pick<PeakWindowSavings, 'costNeverPay' | 'costPeakWindow' | 'costFullCoverage'>,
+): CostStrategyId[] {
+  const costs: Record<CostStrategyId, number> = {
+    neverPay: result.costNeverPay,
+    peakWindow: result.costPeakWindow,
+    fullCoverage: result.costFullCoverage,
+  };
+  const lowestCost = Math.min(...Object.values(costs));
+  return (Object.keys(costs) as CostStrategyId[]).filter((id) => costs[id] === lowestCost);
+}
+
 function hourLabel(hour: number): string {
   return `${String(hour % 24).padStart(2, '0')}:00`;
 }

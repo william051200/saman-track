@@ -17,10 +17,12 @@ stored **locally** in a plain `.txt` file — no cloud, no account.
 - **Fine-time analysis**: hourly histogram + peak window + average fine time.
 - **Peak-window savings**: estimates how much you save by paying for parking
   (**RM1.2/hr** by default) only during the busiest enforcement window, comparing it
-  side by side against never paying and against paying the full enforcement span.
+  side by side against never paying and against paying the full enforcement span,
+  with the lowest-cost option highlighted automatically.
 - **History**: list, edit, delete records.
 - **Local `.txt` storage**, offline-first.
-- **Configurable** parking rate and peak-window length (in the Data/Settings tab).
+- **Configurable** parking rate and peak-window length (under **Data** in the
+  top-right menu).
 - **Installable** on iOS, Android, and desktop.
 
 ## Tech stack

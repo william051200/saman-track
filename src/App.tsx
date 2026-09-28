@@ -10,13 +10,14 @@ import AddRecord from './components/AddRecord';
 import History from './components/History';
 import Settings from './components/Settings';
 import About from './components/About';
+import AppMenu, { MenuPage } from './components/AppMenu';
 
-type Tab = 'dashboard' | 'add' | 'history' | 'settings' | 'about';
+type Page = 'dashboard' | 'add' | 'history' | MenuPage;
 
 export default function App() {
   const [records, setRecords] = useState<ParkingRecord[]>(() => loadRecords());
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
-  const [tab, setTab] = useState<Tab>('dashboard');
+  const [page, setPage] = useState<Page>('dashboard');
   const [status, setStatus] = useState<string>('');
 
   // Persist to localStorage on every change, and mirror to the linked .txt file.
@@ -45,6 +46,28 @@ export default function App() {
     });
   }
 
+  function addRecord(rec: ParkingRecord) {
+    const existing = records.find((r) => !r.deleted && r.date === rec.date);
+    if (!existing) {
+      setRecords((prev) => [...prev, rec]);
+      setStatus('Saved.');
+      return;
+    }
+
+    setRecords((prev) =>
+      prev.map((r) =>
+        r.id === existing.id
+          ? {
+              ...rec,
+              id: existing.id,
+              createdAt: existing.createdAt,
+            }
+          : r,
+      ),
+    );
+    setStatus(`Updated existing record for ${rec.date}.`);
+  }
+
   function deleteRecord(id: string) {
     setRecords((prev) => prev.filter((r) => r.id !== id));
   }
@@ -55,7 +78,10 @@ export default function App() {
         <h1>
           saman-track <span className="app-version">v{appVersion.trim()}</span>
         </h1>
-        <span className="count-pill">{dayCount} days</span>
+        <div className="topbar-actions">
+          <span className="count-pill">{dayCount} days</span>
+          <AppMenu currentPage={page} onNavigate={setPage} />
+        </div>
       </header>
 
       {status && (
@@ -65,20 +91,19 @@ export default function App() {
       )}
 
       <main className="content">
-        {tab === 'dashboard' && <Dashboard records={records} settings={settings} />}
-        {tab === 'add' && (
+        {page === 'dashboard' && <Dashboard records={records} settings={settings} />}
+        {page === 'add' && (
           <AddRecord
             onSave={(rec) => {
-              upsertRecord(rec);
-              setStatus('Saved.');
-              setTab('history');
+              addRecord(rec);
+              setPage('history');
             }}
           />
         )}
-        {tab === 'history' && (
+        {page === 'history' && (
           <History records={records} onEdit={upsertRecord} onDelete={deleteRecord} />
         )}
-        {tab === 'settings' && (
+        {page === 'settings' && (
           <Settings
             records={records}
             settings={settings}
@@ -90,24 +115,24 @@ export default function App() {
             onStatus={setStatus}
           />
         )}
-        {tab === 'about' && <About />}
+        {page === 'about' && <About />}
       </main>
 
-      <nav className="tabbar">
-        <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>
+      <nav className="tabbar" aria-label="Primary navigation">
+        <button
+          className={page === 'dashboard' ? 'active' : ''}
+          onClick={() => setPage('dashboard')}
+        >
           📊<span>Stats</span>
         </button>
-        <button className={tab === 'add' ? 'active' : ''} onClick={() => setTab('add')}>
+        <button className={page === 'add' ? 'active' : ''} onClick={() => setPage('add')}>
           ➕<span>Add</span>
         </button>
-        <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
+        <button
+          className={page === 'history' ? 'active' : ''}
+          onClick={() => setPage('history')}
+        >
           📜<span>History</span>
-        </button>
-        <button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}>
-          ⚙️<span>Data</span>
-        </button>
-        <button className={tab === 'about' ? 'active' : ''} onClick={() => setTab('about')}>
-          ℹ️<span>About</span>
         </button>
       </nav>
     </div>
