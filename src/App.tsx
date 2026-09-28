@@ -4,6 +4,7 @@ import { loadRecords, saveRecords } from './lib/storage';
 import { loadSettings, saveSettings } from './lib/settings';
 import { hasLinkedFile, writeLinkedFile } from './lib/fileStore';
 import { activeRecords } from './lib/calc';
+import appVersion from '../VERSION?raw';
 import Dashboard from './components/Dashboard';
 import AddRecord from './components/AddRecord';
 import History from './components/History';
@@ -51,7 +52,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>saman-track</h1>
+        <h1>
+          saman-track <span className="app-version">v{appVersion.trim()}</span>
+        </h1>
         <span className="count-pill">{dayCount} days</span>
       </header>
 

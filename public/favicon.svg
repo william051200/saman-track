@@ -1,8 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-  <rect width="16" height="16" rx="3" fill="#0f766e" />
-  <path d="M5 4h5v5H7v3H5V4Z M7 6h1V6H7Z" fill="#ffffff" />
-  <rect x="5" y="4" width="2" height="8" fill="#ffffff" />
-  <rect x="5" y="4" width="5" height="2" fill="#ffffff" />
-  <rect x="8" y="4" width="2" height="5" fill="#ffffff" />
-  <rect x="5" y="7" width="5" height="2" fill="#ffffff" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="saman-track ticket logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#14b8a6" />
+      <stop offset="1" stop-color="#0f766e" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#062b28" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- App badge background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+
+  <!-- Parking-ticket / saman slip -->
+  <g filter="url(#shadow)">
+    <rect x="116" y="92" width="280" height="328" rx="26" fill="#ffffff" />
+  </g>
+
+  <!-- Perforated tear line + punched side notches (stub) -->
+  <circle cx="116" cy="300" r="20" fill="url(#bg)" />
+  <circle cx="396" cy="300" r="20" fill="url(#bg)" />
+  <line x1="146" y1="300" x2="366" y2="300" stroke="#cbd5e1" stroke-width="4"
+        stroke-linecap="round" stroke-dasharray="2 14" />
+
+  <!-- Teal "P" disc -->
+  <circle cx="256" cy="166" r="50" fill="#0f766e" />
+  <g fill="#ffffff">
+    <rect x="237" y="138" width="13" height="58" rx="2" />
+    <rect x="237" y="138" width="42" height="13" rx="2" />
+    <rect x="266" y="138" width="13" height="33" rx="2" />
+    <rect x="237" y="158" width="42" height="13" rx="2" />
+  </g>
+
+  <!-- "text" lines on the slip -->
+  <rect x="170" y="236" width="172" height="16" rx="8" fill="#cbd5e1" />
+  <rect x="194" y="266" width="124" height="16" rx="8" fill="#e2e8f0" />
+
+  <!-- Fine-amount highlight pill on the stub -->
+  <rect x="156" y="332" width="200" height="46" rx="13" fill="#0f766e" />
+  <rect x="194" y="394" width="124" height="14" rx="7" fill="#cbd5e1" />
 </svg>
